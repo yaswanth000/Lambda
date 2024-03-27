@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creating IAM user , group , policy and roles.
+Resources:
+  RameshUser:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password: Awscoe#9
+  KiranUser:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password: Awscoe#8
+  AWSUserGroup:
+    Type: AWS::IAM::Group
+  AWSAdminGroup:
+    Type: AWS::IAM::Group
+  Users:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref 'AWSUserGroup'
+      Users: [!Ref 'RameshUser']
+  Admins:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref 'AWSAdminGroup'
+      Users: [!Ref 'KiranUser']
+  AWSUserPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AWSUsers
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: ['cloudformation:Describe*', 'cloudformation:List*', 'cloudformation:Get*']
+          Resource: '*'
+      Groups: [!Ref 'AWSUserGroup']
+  AWSAdminPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AWSAdmins
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: cloudformation:*
+          Resource: '*'
+      Groups: [!Ref 'AWSAdminGroup']
+  AWSKeys:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref 'KiranUser'
+Outputs:
+  AccessKey:
+    Value: !Ref 'AWSKeys'
+    Description: AWSAccessKeyId of new user
+  SecretKey:
+    Value: !GetAtt [AWSKeys, SecretAccessKey]
+    Description: AWSSecretAccessKey of new user
